@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InfrastructureException" xml:space="preserve">
+    <value>Unspecified infrastructure layer exception. Check the inner exception for details.</value>
+  </data>
+  <data name="DALException" xml:space="preserve">
+    <value>Unspecified Data Access Layer exception. Check the inner exception for details.</value>
+  </data>
+  <data name="ClassNotFoundException" xml:space="preserve">
+    <value>Implementing class {0} could not be found</value>
+  </data>
+  <data name="InterfaceNotFoundException" xml:space="preserve">
+    <value>Interface {0} could not be found</value>
+  </data>
+  <data name="AmbiguousMethodException" xml:space="preserve">
+    <value>No definite, implementing method was found in the implementing class of the interface</value>
+  </data>
+  <data name="NoClientRegisteredException" xml:space="preserve">
+    <value>No class that implements the IRemotingClient interface has been registered at the ObjectFactory for interface {0}</value>
+  </data>
+  <data name="RemotingServerRunStarted" xml:space="preserve">
+    <value>RemotingServer task started for instance of {0}</value>
+  </data>
+  <data name="RemotingServerRunMsgReceived" xml:space="preserve">
+    <value>Received message with id {0} and {1} bytes of payload</value>
+  </data>
+  <data name="RemotingServerRunStopping" xml:space="preserve">
+    <value>RemotingServer task will stop after waiting for {0} invocation-tasks...</value>
+  </data>
+  <data name="RemotingServerRunStopped" xml:space="preserve">
+    <value>RemotingServer task is stopping</value>
+  </data>
+  <data name="RemotingServerProcessMessageStart" xml:space="preserve">
+    <value>Processing received message with id {0}</value>
+  </data>
+  <data name="RemotingServerProcessMessageDeserialized" xml:space="preserve">
+    <value>Deserialized message {0} to invocation of method "{1}" in interface with GUID {2}</value>
+  </data>
+  <data name="RemotingServerProcessMessageInvoked" xml:space="preserve">
+    <value>Invocation of message with id {0} returned value of type {1} and throw exception {2}</value>
+  </data>
+  <data name="RemotingServerInvoke" xml:space="preserve">
+    <value>Invoking method {0} on target {1}</value>
+  </data>
+  <data name="RemotingServerProcessInvocationSendingResponse" xml:space="preserve">
+    <value>Sending response of invocation for message with id {0}</value>
+  </data>
+  <data name="RemotingClientInvoke" xml:space="preserve">
+    <value>Remoting invocation of method {0} for interface {1}</value>
+  </data>
+  <data name="RemotingClientInvokeSendingInvocation" xml:space="preserve">
+    <value>Sending invocation of method {0} for interface {1} as message with id {2} and {3} bytes of payload</value>
+  </data>
+  <data name="RemotedAspectInitialized" xml:space="preserve">
+    <value>Registering RemotingClient {0} for type {1}</value>
+  </data>
+  <data name="RemotedAspectAfterMethodCall" xml:space="preserve">
+    <value>RemotedAspect called after call to method {0} on {1}</value>
+  </data>
+  <data name="RemotingServerException" xml:space="preserve">
+    <value>Unspecified exception caught while processing a remoted invocation on the server side. Check the inner exception for details.</value>
+  </data>
+  <data name="MessageProcessingException" xml:space="preserve">
+    <value>An exception occurred while preparing the invocation of a method on the RemotingServer. Check the inner exception for details.</value>
+  </data>
+  <data name="ResponseProcessingException" xml:space="preserve">
+    <value>An exception occurred while processing the response of an invocation at the RemotingServer. Check the inner exception for details.</value>
+  </data>
+  <data name="InvalidMethodForAspectException" xml:space="preserve">
+    <value>Method {0} does not fulfill necessary criteria for aspect {1}</value>
+  </data>
+  <data name="TypeNotSerializableException" xml:space="preserve">
+    <value>Return type or parameter type {0} of method {1} has not SerializableAttribute and therefore cannot be used on aspect {2}</value>
+  </data>
+  <data name="RemotingClientException" xml:space="preserve">
+    <value>An exception occurred while processing a remoted call on the client side. Check the inner exceptions for details</value>
+  </data>
+</root>

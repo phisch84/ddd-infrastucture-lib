@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "infrastructure-lib", "infrastructure-lib\infrastructure-lib.csproj", "{5ADDD8CE-7FA5-441A-B153-4307B37B056E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "infrastructure-tests", "infrastructure-tests\infrastructure-tests.csproj", "{580E8AED-A95D-4C20-A4FB-A92954F7CE74}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5ADDD8CE-7FA5-441A-B153-4307B37B056E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ADDD8CE-7FA5-441A-B153-4307B37B056E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ADDD8CE-7FA5-441A-B153-4307B37B056E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ADDD8CE-7FA5-441A-B153-4307B37B056E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{580E8AED-A95D-4C20-A4FB-A92954F7CE74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{580E8AED-A95D-4C20-A4FB-A92954F7CE74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{580E8AED-A95D-4C20-A4FB-A92954F7CE74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{580E8AED-A95D-4C20-A4FB-A92954F7CE74}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {628850A0-7648-45D7-A5BB-6CE705F72209}
+	EndGlobalSection
+EndGlobal
