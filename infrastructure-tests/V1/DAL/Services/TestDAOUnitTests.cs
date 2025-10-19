@@ -144,7 +144,8 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
         }
 
         /// <summary>
-        /// Initializes static properties of the class
+        /// Initializes static properties of the class.
+        /// Configures the <see cref="ObjectFactory"/> to register interfaces and their implementing classes used in the tests.
         /// </summary>
         [ClassInitialize]
         static public void SetUp(TestContext testContext)
@@ -152,7 +153,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
             var ifName = typeof(ITestDAO).FullName;
             var clsName = typeof(TestDAO).FullName;
 
-            ObjectFactory.Configuration.InterfaceToImplementationMap[ifName] = clsName;
+            ObjectFactory.Register(typeof(ITestDAO), typeof(TestDAO));
         }
 
         /// <summary>

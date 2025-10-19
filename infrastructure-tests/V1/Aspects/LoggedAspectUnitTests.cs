@@ -18,7 +18,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Aspects
         /// Gets or sets the test context which provides
         /// information about and functionality for the current test run.
         /// </summary>
-        public TestContext TestContext
+        public TestContext? TestContext
         {
             get { return testContextInstance; }
             set { testContextInstance = value; }
