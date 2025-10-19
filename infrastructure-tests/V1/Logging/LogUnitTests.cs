@@ -92,6 +92,29 @@
         }
 
         /// <summary>
+        /// Tests if logging a fatal event will be filtered if the level does not include <see cref=Log.LogLevels.Fatal/>.
+        /// </summary>
+        [TestMethod]
+        public void TestLogLevelFatal()
+        {
+            Assert.IsNotNull(Log.Instance, "No logger has been initialized.");
+
+            // Remove fatal from log level
+            if (Log.Instance.Level.HasFlag(Log.LogLevels.Fatal)) Log.Instance.Level &= ~Log.LogLevels.Fatal;
+
+            var oldLogEntries = Logging.Mocked.Log.Entries;
+
+            Log.Instance.Error("Test {0}", "TestLogLevelFatal");
+
+            var newLogEntries = Logging.Mocked.Log.Entries;
+
+            // Restore log level
+            Log.Instance.Level |= Log.LogLevels.Fatal;
+
+            Assert.AreEqual(newLogEntries.Count, oldLogEntries.Count);
+        }
+
+        /// <summary>
         /// Tests of logging an exception on error level.
         /// Tests the method <see cref="Log.Error(System.Exception)"/>.
         /// </summary>
@@ -149,6 +172,29 @@
         }
 
         /// <summary>
+        /// Tests if logging an error event will be filtered if the level does not include <see cref=Log.LogLevels.Error"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestLogLevelError()
+        {
+            Assert.IsNotNull(Log.Instance, "No logger has been initialized.");
+
+            // Remove error from log level
+            if (Log.Instance.Level.HasFlag(Log.LogLevels.Error)) Log.Instance.Level &= ~Log.LogLevels.Error;
+
+            var oldLogEntries = Logging.Mocked.Log.Entries;
+
+            Log.Instance.Error("Test {0}", "TestLogLevelError");
+
+            var newLogEntries = Logging.Mocked.Log.Entries;
+
+            // Restore log level
+            Log.Instance.Level |= Log.LogLevels.Error;
+
+            Assert.AreEqual(newLogEntries.Count, oldLogEntries.Count);
+        }
+
+        /// <summary>
         /// Tests of logging a warning with a message.
         /// Tests the method <see cref="Log.Warn(string, object[])"/>.
         /// </summary>
@@ -165,6 +211,29 @@
             var newLogEntries = Logging.Mocked.Log.Entries;
 
             Assert.IsTrue(newLogEntries.Count > oldLogEntries.Count);
+        }
+
+        /// <summary>
+        /// Tests if logging a warning will be filtered if the level does not include <see cref=Log.LogLevels.Warning"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestLogLevelWarn()
+        {
+            Assert.IsNotNull(Log.Instance, "No logger has been initialized.");
+
+            // Remove warning from log level
+            if (Log.Instance.Level.HasFlag(Log.LogLevels.Warning)) Log.Instance.Level &= ~Log.LogLevels.Warning;
+
+            var oldLogEntries = Logging.Mocked.Log.Entries;
+
+            Log.Instance.Warn("Test {0}", "TestLogLevelWarn");
+
+            var newLogEntries = Logging.Mocked.Log.Entries;
+
+            // Restore log level
+            Log.Instance.Level |= Log.LogLevels.Warning;
+
+            Assert.AreEqual(newLogEntries.Count, oldLogEntries.Count);
         }
 
         /// <summary>
@@ -187,6 +256,29 @@
         }
 
         /// <summary>
+        /// Tests if logging a info will be filtered if the level does not include <see cref=Log.LogLevels.Info"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestLogLevelInfo()
+        {
+            Assert.IsNotNull(Log.Instance, "No logger has been initialized.");
+
+            // Remove info from log level
+            if (Log.Instance.Level.HasFlag(Log.LogLevels.Info)) Log.Instance.Level &= ~Log.LogLevels.Info;
+
+            var oldLogEntries = Logging.Mocked.Log.Entries;
+
+            Log.Instance.Info("Test {0}", "TestLogLevelInfo");
+
+            var newLogEntries = Logging.Mocked.Log.Entries;
+
+            // Restore log level
+            Log.Instance.Level |= Log.LogLevels.Info;
+
+            Assert.AreEqual(newLogEntries.Count, oldLogEntries.Count);
+        }
+
+        /// <summary>
         /// Tests of logging a debug info with a message.
         /// Tests the method <see cref="Log.Debug(string, object[])"/>.
         /// </summary>
@@ -203,6 +295,29 @@
             var newLogEntries = Logging.Mocked.Log.Entries;
 
             Assert.IsTrue(newLogEntries.Count > oldLogEntries.Count);
+        }
+
+        /// <summary>
+        /// Tests if logging a debug info will be filtered if the level does not include <see cref=Log.LogLevels.Debug"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestLogLevelDebug()
+        {
+            Assert.IsNotNull(Log.Instance, "No logger has been initialized.");
+
+            // Remove debug from log level
+            if (Log.Instance.Level.HasFlag(Log.LogLevels.Debug)) Log.Instance.Level &= ~Log.LogLevels.Debug;
+
+            var oldLogEntries = Logging.Mocked.Log.Entries;
+
+            Log.Instance.Info("Test {0}", "TestLogLevelDebug");
+
+            var newLogEntries = Logging.Mocked.Log.Entries;
+
+            // Restore log level
+            Log.Instance.Level |= Log.LogLevels.Debug;
+
+            Assert.AreEqual(newLogEntries.Count, oldLogEntries.Count);
         }
 
         /// <summary>
@@ -225,7 +340,7 @@
         }
 
         /// <summary>
-        /// Tests of logging an a trace with no message.
+        /// Tests of logging an a trace with a message.
         /// Tests the method <see cref="Log.Trace(params object[] args)"/>.
         /// </summary>
         [TestMethod]
@@ -241,6 +356,29 @@
             var newLogEntries = Logging.Mocked.Log.Entries;
 
             Assert.IsTrue(newLogEntries.Count > oldLogEntries.Count);
+        }
+
+        /// <summary>
+        /// Tests if logging a trace info will be filtered if the level does not include <see cref=Log.LogLevels.Trace"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestLogLevelTrace()
+        {
+            Assert.IsNotNull(Log.Instance, "No logger has been initialized.");
+
+            // Remove trace from log level
+            if (Log.Instance.Level.HasFlag(Log.LogLevels.Trace)) Log.Instance.Level &= ~Log.LogLevels.Trace;
+
+            var oldLogEntries = Logging.Mocked.Log.Entries;
+
+            Log.Instance.Info("Test {0}", "TestLogLevelTrace");
+
+            var newLogEntries = Logging.Mocked.Log.Entries;
+
+            // Restore log level
+            Log.Instance.Level |= Log.LogLevels.Trace;
+
+            Assert.AreEqual(newLogEntries.Count, oldLogEntries.Count);
         }
     }
 }
