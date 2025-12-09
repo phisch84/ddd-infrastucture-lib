@@ -141,7 +141,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         public Log() : base() { }
 
         ///<inheritdoc/>
-        public override void Debug(string message, params object[] args)
+        protected override void DebugInternal(string? message, params object?[]? args)
         {
             lock (logEntries)
             {
@@ -158,7 +158,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Error(Exception exception)
+        protected override void ErrorInternal(Exception? exception)
         {
             var msg = GetLogMessage(Level, exception);
 
@@ -177,7 +177,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Error(Exception exception, string message, params object[] args)
+        protected override void ErrorInternal(Exception? exception, string? message, params object?[]? args)
         {
             var msg = GetLogMessage(Level, exception);
 
@@ -196,7 +196,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Error(string message, params object[] args)
+        protected override void ErrorInternal(string? message, params object?[]? args)
         {
             lock (logEntries)
             {
@@ -213,7 +213,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Fatal(Exception exception)
+        protected override void FatalInternal(Exception? exception)
         {
             var msg = GetLogMessage(Level, exception);
 
@@ -232,7 +232,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Fatal(Exception exception, string message, params object[] args)
+        protected override void FatalInternal(Exception? exception, string? message, params object?[]? args)
         {
             var msg = GetLogMessage(Level, exception);
 
@@ -251,7 +251,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Fatal(string message, params object[] args)
+        protected override void FatalInternal(string? message, params object?[]? args)
         {
             lock (logEntries)
             {
@@ -268,7 +268,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Info(string message, params object[] args)
+        protected override void InfoInternal(string? message, params object?[]? args)
         {
             lock (logEntries)
             {
@@ -285,7 +285,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Trace(string message, params object[] args)
+        protected override void TraceInternal(string? message, params object?[]? args)
         {
             lock (logEntries)
             {
@@ -302,7 +302,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Warn(string message, params object[] args)
+        protected override void WarnInternal(string? message, params object?[]? args)
         {
             lock (logEntries)
             {
@@ -319,7 +319,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
         }
 
         ///<inheritdoc/>
-        public override void Trace(params object[] args)
+        protected override void TraceInternal(params object?[]? args)
         {
             lock (logEntries)
             {

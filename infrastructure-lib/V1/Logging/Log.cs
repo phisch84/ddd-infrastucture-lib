@@ -169,57 +169,145 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Fatal(Exception exception);
+        abstract protected void FatalInternal(Exception? exception);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Fatal(Exception exception, string message, params object[] args);
+        abstract protected void FatalInternal(Exception? exception, string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Fatal(string message, params object[] args);
+        abstract protected void FatalInternal(string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Error(Exception exception);
+        abstract protected void ErrorInternal(Exception? exception);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Error(Exception exception, string message, params object[] args);
+        abstract protected void ErrorInternal(Exception? exception, string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Error(string message, params object[] args);
+        abstract protected void ErrorInternal(string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Warn(string message, params object[] args);
+        abstract protected void WarnInternal(string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Info(string message, params object[] args);
+        abstract protected void InfoInternal(string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Debug(string message, params object[] args);
+        abstract protected void DebugInternal(string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Trace(string message, params object[] args);
+        abstract protected void TraceInternal(string? message, params object?[]? args);
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        abstract public void Trace(params object[] args);
+        abstract protected void TraceInternal(params object?[]? args);
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Fatal(Exception exception)
+        {
+            if (this.Level.HasFlag(LogLevels.Fatal)) this.FatalInternal(exception);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Fatal(Exception exception, string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Fatal)) this.FatalInternal(exception, message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Fatal(string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Fatal)) this.FatalInternal(message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Error(Exception exception)
+        {
+            if (this.Level.HasFlag(LogLevels.Error)) this.ErrorInternal(exception);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Error(Exception exception, string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Error)) this.ErrorInternal(exception, message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Error(string message, params object[] args)
+        {
+           if (this.Level.HasFlag(LogLevels.Error)) this.ErrorInternal(message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Warn(string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Warning)) this.WarnInternal(message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Info(string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Info)) this.InfoInternal(message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Debug(string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Debug)) this.DebugInternal(message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Trace(string message, params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Trace)) this.TraceInternal(message, args);
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        virtual public void Trace(params object[] args)
+        {
+            if (this.Level.HasFlag(LogLevels.Trace)) this.TraceInternal(args);
+        }
     }
 
 }

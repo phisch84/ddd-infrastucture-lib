@@ -19,6 +19,12 @@
             ObjectFactory.RegisterSingleton<ILog>(ObjectFactory.CreateInstance<ILog>());
         }
 
+        [TestCleanup]
+        public void ResetLogEntries()
+        {
+            Logging.Mocked.Log.Entries.Clear();
+        }
+
         /// <summary>
         /// Tests if <see cref="Log.Level"/> was initialized with all possible levels
         /// </summary>
@@ -104,7 +110,7 @@
 
             var oldLogEntries = Logging.Mocked.Log.Entries;
 
-            Log.Instance.Error("Test {0}", "TestLogLevelFatal");
+            Log.Instance.Fatal("Test {0}", "TestLogLevelFatal");
 
             var newLogEntries = Logging.Mocked.Log.Entries;
 
@@ -310,7 +316,7 @@
 
             var oldLogEntries = Logging.Mocked.Log.Entries;
 
-            Log.Instance.Info("Test {0}", "TestLogLevelDebug");
+            Log.Instance.Debug("Test {0}", "TestLogLevelDebug");
 
             var newLogEntries = Logging.Mocked.Log.Entries;
 
@@ -371,7 +377,7 @@
 
             var oldLogEntries = Logging.Mocked.Log.Entries;
 
-            Log.Instance.Info("Test {0}", "TestLogLevelTrace");
+            Log.Instance.Trace("Test {0}", "TestLogLevelTrace");
 
             var newLogEntries = Logging.Mocked.Log.Entries;
 

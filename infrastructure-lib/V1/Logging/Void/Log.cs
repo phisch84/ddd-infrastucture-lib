@@ -15,47 +15,47 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Void
         {
         }
 
-        public override void Fatal(Exception exception)
+        protected override void DebugInternal(string? message, params object?[]? args)
         {
         }
 
-        public override void Fatal(Exception exception, string message, params object[] args)
+        protected override void ErrorInternal(Exception? exception)
         {
         }
 
-        public override void Fatal(string message, params object[] args)
+        protected override void ErrorInternal(Exception? exception, string? message, params object?[]? args)
         {
         }
 
-        public override void Error(Exception exception)
+        protected override void ErrorInternal(string? message, params object?[]? args)
         {
         }
 
-        public override void Error(Exception exception, string message, params object[] args)
+        protected override void FatalInternal(Exception? exception)
         {
         }
 
-        public override void Error(string message, params object[] args)
+        protected override void FatalInternal(Exception? exception, string? message, params object?[]? args)
         {
         }
 
-        public override void Warn(string message, params object[] args)
+        protected override void FatalInternal(string? message, params object?[]? args)
         {
         }
 
-        public override void Info(string message, params object[] args)
+        protected override void InfoInternal(string? message, params object?[]? args)
         {
         }
 
-        public override void Debug(string message, params object[] args)
+        protected override void TraceInternal(string? message, params object?[]? args)
         {
         }
 
-        public override void Trace(string message, params object[] args)
+        protected override void TraceInternal(params object?[]? args)
         {
         }
 
-        public override void Trace(params object[] args)
+        protected override void WarnInternal(string? message, params object?[]? args)
         {
         }
     }
