@@ -71,7 +71,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
         /// <inheritdoc/>
         public event EventHandler<LoadEventArgs<DO, ID>>? AfterLoad;
 
-        abstract protected object LoadInternal(params object[] args);
+        abstract protected object? LoadInternal(params object[] args);
 
         virtual protected void NotifyBeforeLoad(long callId, DO dataObject, params object[] args)
         {
@@ -87,7 +87,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
             eh?.Invoke(this, new LoadEventArgs<DO, ID>(callId, dataObject, args));
         }
 
-        async Task<object> IDataAccessObject.LoadAsync(object sender, params object[] args)
+        async Task<object?> IDataAccessObject.LoadAsync(object sender, params object[] args)
         {
             try
             {

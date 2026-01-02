@@ -35,7 +35,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
         /// <param name="sender">The calling data object</param>
         /// <param name="args">Optional arguments</param>
         /// <returns>A task that loads the data</returns>
-        internal Task<object> LoadAsync(object sender, params object[] args);
+        internal Task<object?> LoadAsync(object sender, params object[] args);
     }
 
     /// <summary>
