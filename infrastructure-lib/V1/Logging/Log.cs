@@ -55,6 +55,11 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging
             /// Log detailed information for developers which will help to reconstruct the process
             /// </summary>
             Trace = 32,
+
+            /// <summary>
+            /// Represents a combination of all available log levels.
+            /// </summary>
+            All = Fatal | Error | Warning | Info | Debug | Trace,
         }
 
         /// <inheritdoc/>
@@ -110,7 +115,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging
         /// <param name="level">The log level to format the exception for</param>
         /// <param name="exception">The exception to print</param>
         /// <returns>Printable text of the exception</returns>
-        static public string GetLogMessage(LogLevels level, Exception exception)
+        static public string GetLogMessage(LogLevels level, Exception? exception)
         {
             try
             {
