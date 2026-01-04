@@ -1,6 +1,8 @@
-﻿namespace com.schoste.ddd.Infrastructure.V1.Remoting
+﻿using System.Threading.Tasks;
+
+namespace com.schoste.ddd.Infrastructure.V1.Remoting
 {
-    using Shared.Services;
+    using Infrastructure.V1.Shared.Services;
 
     /// <summary>
     /// Tests the correct logic of <see cref="RemotingClient"/> (implemented by <see cref="Remoting.Mocked.LocalClient"/>)
@@ -16,9 +18,9 @@
         {
             public bool MethodWasCalled { get; set; }
 
-            void TestMethodVoid();
+            public Task TestMethodVoid();
 
-            string? TestMethodString(int param);
+            public Task<string?> TestMethodString(int param);
         }
 
         public class TestClass : ITestClass
@@ -30,14 +32,14 @@
                 this.MethodWasCalled = false;
             }
 
-            public string? TestMethodString(int param)
+            public async Task<string?> TestMethodString(int param)
             {
                 this.MethodWasCalled = true;
 
                 return param.ToString();
             }
 
-            public void TestMethodVoid()
+            public async Task TestMethodVoid()
             {
                 this.MethodWasCalled = true;
             }

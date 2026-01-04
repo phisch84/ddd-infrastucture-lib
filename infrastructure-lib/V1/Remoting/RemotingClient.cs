@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace com.schoste.ddd.Infrastructure.V1.Remoting
 {
+    using Remoting.Exceptions;
     using Remoting.Models;
-    using Shared.Services;
+    using V1.Shared.Services;
     using V1.Exceptions;
     using V1.Logging;
 
@@ -81,16 +82,40 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
 
                 var response = this.WaitForResponse(msgId);
 
-                ex = response.ThrownException;
-
-                var deserializedRetVal = !ReferenceEquals(null, response.ReturnValue) ? this.Serializer.Deserialize(response.ReturnValue) : null;
-
-                returnValue = (ReferenceEquals(null, deserializedRetVal) || deserializedRetVal.Length == 0) ? null : deserializedRetVal[0];
+                this.DeserializeResponse(response, out returnValue, out ex);
             }
             catch (Exception unhandledEx)
             {
+                Log?.Error(unhandledEx);
+
                 throw new InfrastructureException(unhandledEx);
             }
+        }
+
+        virtual protected void DeserializeResponse(RemoteInvocation ri, out object? returnValue, out Exception? ex)
+        {
+            ex = null;
+
+            if (!ReferenceEquals(null, ri.ThrownException))
+            {
+                var deserializedException = this.Serializer.Deserialize(ri.ThrownException);
+
+                if (deserializedException.Length > 0)
+                {
+                    if (deserializedException[0] is RemoteMethodException) ex = deserializedException[0] as RemoteMethodException;
+                    if (deserializedException[0] is RemotingServerException) ex = deserializedException[0] as RemotingServerException;
+
+                    if (ReferenceEquals(null, ex)) ex = deserializedException[0] as Exception;
+                }
+                else
+                {
+                    ex = null;
+                }
+            }
+
+            var deserializedRetVal = !ReferenceEquals(null, ri.ReturnValue) ? this.Serializer.Deserialize(ri.ReturnValue) : null;
+
+            returnValue = (ReferenceEquals(null, deserializedRetVal) || deserializedRetVal.Length == 0) ? null : deserializedRetVal[0];
         }
 
         virtual protected byte[] SerializeInvocation(object?[]? args, Type interfaceType, MethodInfo remoteMethod)
@@ -110,22 +135,31 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         {
             while (true)
             {
-                var responseData = this.ReadNextResponse(out var msgId);
-                var response = this.ProcessResponse(responseData);
-
-                this.ResponsesCache[msgId] = response;
-
-                lock (this.ResponseReaderLock)
+                try
                 {
-                    if (this.ResponseWaiters < 1)
-                    {
-                        this.ResponseReader = null;
+                    var responseData = this.ReadNextResponse(out var msgId);
+                    var response = this.ProcessResponse(responseData);
 
-                        break;
+                    this.ResponsesCache[msgId] = response;
+
+                    lock (this.ResponseReaderLock)
+                    {
+                        if (this.ResponseWaiters < 1)
+                        {
+                            this.ResponseReader = null;
+
+                            break;
+                        }
                     }
                 }
-
-                this.ResponseArrivedEvent.Set();
+                catch (Exception ex)
+                {
+                    Log?.Error(ex);
+                }
+                finally
+                {
+                    this.ResponseArrivedEvent.Set();
+                }
             }
         }
 

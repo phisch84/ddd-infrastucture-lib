@@ -64,6 +64,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
         /// If only one object was serialized, the array will only have one element.
         /// If <see cref="null"/> or an empty array was serialized, the array will have no elements.
         /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="dto"/> is null</exception>
+        /// <exception cref="Exceptions.ClassNotRegisteredException">Thrown if <see cref="DataTransferObject.ClassId"/> in <paramref name="dto"/> is <see cref="Guid.Empty"/> or no class was found for <see cref="DataTransferObject.ClassId"/></exception>"
         /// <remarks>This is the inverse operation of <see cref="Serialize(object[])"/></remarks>
         object[] Deserialize(DataTransferObject dto);
 
@@ -77,18 +79,25 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
         void RegisterGuidForType(Guid guidToRegister, Type registrationForType);
 
         /// <summary>
-        /// Looks up the <see cref="Type"/> for a given <paramref name="classId"/>.
+        /// Looks up the <see cref="Type"/> for a given <paramref name="forClassId"/>
+        /// and returns it in <paramref name="type"/>.
         /// </summary>
-        /// <param name="classId">The <see cref="Type.GUID"/> to look up</param>
-        /// <returns>The type found for <paramref name="classId"/></returns>
-        /// <exception cref="Exceptions.ClassNotFoundException">Thrown if no <see cref="Type"/> was found for <paramref name="classId"/></exception>
-        Type LookUpType(Guid classId);
+        /// <param name="forClassId">The <see cref="Type.GUID"/> to look up</param>
+        /// <param name="type">The resulting <see cref="Type"/> if found.</param>
+        /// <returns>
+        /// True if the type was found for <paramref name="classId"/>, false otherwise
+        /// </returns>
+        bool TryLookUpType(Guid forClassId, out Type? type);
 
         /// <summary>
-        /// Looks up the GUID for a given <paramref name="type"/>.
+        /// Looks up the GUID for a given <paramref name="forType"/> and returns it in <paramref name="guid"/>.
         /// </summary>
-        /// <param name="type">The <see cref="Type"/> to get the GUID for</param>
-        /// <returns>The GUID for <paramref name="type"/></returns>
-        Guid LookUpTypeGuid(Type type);
+        /// <param name="forType">The <see cref="Type"/> to get the GUID for</param>
+        /// <param name="guid">The resulting <see cref="Guid"/> if found</param>
+        /// <returns>
+        /// True if the GUID was found for <paramref name="forType"/>, false otherwise
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="forType"/> is null</exception>
+        bool TryLookUpTypeGuid(Type forType, out Guid? guid);
     }
 }

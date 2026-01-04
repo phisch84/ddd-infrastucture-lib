@@ -51,14 +51,14 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Stream
             return msgId;
         }
 
-        protected override Task SendResponse(long msgId, DataTransferObject response)
+        override protected Task SendResponse(long msgId, DataTransferObject response)
         {
             var invocation = this.Serializer.Serialize(response);
 
             return Task.Run(() => { this.SendResponse(msgId, invocation); });
         }
 
-        protected void SendResponse(long msgId, byte[] invocation)
+        virtual protected void SendResponse(long msgId, byte[] invocation)
         {
             this.OutputStream.Write(BitConverter.GetBytes(msgId));
             this.OutputStream.Write(BitConverter.GetBytes(invocation.Length));

@@ -151,10 +151,10 @@
     <value>Processing received message with id {0}</value>
   </data>
   <data name="RemotingServerProcessMessageDeserialized" xml:space="preserve">
-    <value>Deserialized message {0} to invocation of method "{1}" in interface with GUID {2}</value>
+    <value>Deserialized message {0} for invocation of method "{1}" in interface with GUID {2}</value>
   </data>
   <data name="RemotingServerProcessMessageInvoked" xml:space="preserve">
-    <value>Invocation of message with id {0} returned value of type {1} and throw exception {2}</value>
+    <value>Invocation of message with id {0} returned value of type {1} and threw exception {2}</value>
   </data>
   <data name="RemotingServerInvoke" xml:space="preserve">
     <value>Invoking method {0} on target {1}</value>
@@ -191,5 +191,11 @@
   </data>
   <data name="RemotingClientException" xml:space="preserve">
     <value>An exception occurred while processing a remoted call on the client side. Check the inner exceptions for details</value>
+  </data>
+  <data name="ClassNotRegisteredException" xml:space="preserve">
+    <value>Class "{0}" has an empty GUID</value>
+  </data>
+  <data name="ValidateMethodNotATaskArgumentException" xml:space="preserve">
+    <value>The return value of method {0} is {1}, which isn't assignable to {2}</value>
   </data>
 </root>

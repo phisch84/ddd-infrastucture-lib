@@ -2,6 +2,8 @@
 {
     using Remoting.Mocked;
     using Shared.Services;
+    using System;
+    using System.Threading.Tasks;
 
     [TestClass]
     [TestCategory("Unit Test")]
@@ -16,6 +18,10 @@
             void TestMethodVoid();
 
             string? TestMethodString(int param);
+
+            Task<string?> TestMethodStringAsync(int param);
+
+            Task TestMethodVoidAsync();
         }
 
         public class TestClass : ITestClass
@@ -38,6 +44,19 @@
             {
                 this.MethodWasCalled = true;
             }
+
+            public async Task<string?> TestMethodStringAsync(int param)
+            {
+                this.MethodWasCalled = true;
+                await Task.Delay(1);
+                return param.ToString();
+            }
+
+            public async Task TestMethodVoidAsync()
+            {
+                this.MethodWasCalled = true;
+            }
+
         }
 
         /// <summary>
@@ -72,6 +91,7 @@
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
         public void TestProcessMessageVoid()
         {
             var tcInstance = ObjectFactory.GetInstance<ITestClass>();
@@ -87,5 +107,40 @@
 
             Assert.IsTrue(tcInstance.MethodWasCalled);
         }
+
+        [TestMethod]
+        public void TestProcessMessageStringAsync()
+        {
+            var tcInstance = ObjectFactory.GetInstance<ITestClass>();
+            var testClassMethodInfo = tcInstance.GetType().GetMethod(nameof(TestClass.TestMethodStringAsync));
+
+            Assert.IsNotNull(testClassMethodInfo);
+            
+            var serializer = ObjectFactory.GetInstance<ISerializer>();
+            var cliInstance = new LocalClient(serializer);
+            var srvInstance = cliInstance.LocalServer;
+            var methodInvocationMsg = cliInstance.SerializeInvocation(new object[] { 3 } , typeof(ITestClass), testClassMethodInfo);
+            var actualDTO = srvInstance.ProcessMessage(0, methodInvocationMsg);
+
+            Assert.IsTrue(tcInstance.MethodWasCalled);
+        }
+
+        [TestMethod]
+        public void TestProcessMessageVoidAsync()
+        {
+            var tcInstance = ObjectFactory.GetInstance<ITestClass>();
+            var testClassMethodInfo = tcInstance.GetType().GetMethod(nameof(TestClass.TestMethodVoidAsync));
+
+            Assert.IsNotNull(testClassMethodInfo);
+
+            var serializer = ObjectFactory.GetInstance<ISerializer>();
+            var cliInstance = new LocalClient(serializer);
+            var srvInstance = cliInstance.LocalServer;
+            var methodInvocationMsg = cliInstance.SerializeInvocation([], typeof(ITestClass), testClassMethodInfo);
+            var actualDTO = srvInstance.ProcessMessage(0, methodInvocationMsg);
+
+            Assert.IsTrue(tcInstance.MethodWasCalled);
+        }
+
     }
 }

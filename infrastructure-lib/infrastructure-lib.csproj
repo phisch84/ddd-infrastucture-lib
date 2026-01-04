@@ -14,6 +14,10 @@
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/phisch84/ddd-infrastucture-lib</RepositoryUrl>
     <NeutralLanguage>en</NeutralLanguage>
+    <PackageTags>ddd; Domain Driven Design; dao; Data Access Object; AOP; Aspect Oriented Programming</PackageTags>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyTitle>Domain Driven Design Infrastructure Layer Library</AssemblyTitle>
   </PropertyGroup>
 
   <ItemGroup>

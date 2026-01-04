@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace com.schoste.ddd.Infrastructure.V1.Remoting
 {
     using Logging;
+    using Remoting.Exceptions;
     using Remoting.Models;
     using Shared.Exceptions;
     using Shared.Services;
@@ -28,6 +29,22 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         protected CancellationTokenSource? CancellationTokenSource = null;
         protected readonly IDictionary<Guid, Type> ClsGuidsToTypesMap = new Dictionary<Guid, Type>();
         protected readonly ConcurrentDictionary<long, Task> InvocationTasks = new ConcurrentDictionary<long, Task>();
+
+        static private async Task<object?>? toTaskWithResult(Task task)
+        {
+            var voidTaskResultType = Type.GetType("System.Threading.Tasks.VoidTaskResult");
+            if (ReferenceEquals(null, voidTaskResultType) || voidTaskResultType.IsAssignableFrom(task.GetType())) throw new InvalidOperationException();
+
+            var voidTaskType = typeof(Task<>).MakeGenericType(voidTaskResultType);
+            if (voidTaskType.IsAssignableFrom(task.GetType())) return null;
+
+            var property = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance);
+            if (property == null) return null;
+
+            await task;
+
+            return property.GetValue(task);
+        }
 
         /// <summary>
         /// Creates a new instance with an interface to the serializer.
@@ -122,26 +139,61 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         {
             try
             {
-                var response = await ProcessMessage(msgId, msg);
+                DataTransferObject? response = null;
+                Exception? processMessageException = null;
 
-                Log?.Debug(Resources.Messages.RemotingServerProcessInvocationSendingResponse, msgId);
-
+                // Deserialize the invocation, invoke the requested method and serialize its response
                 try
                 {
-                    await this.SendResponse(msgId, response);
+                    response = await ProcessMessage(msgId, msg);
+                }
+                catch (ResponseProcessingException rpe)
+                {
+                    processMessageException = (ReferenceEquals(null, rpe.InnerException)) ? rpe : rpe.InnerException;
                 }
                 catch (Exception ex)
                 {
+                    processMessageException = ex;
+                }
+
+                // Send back the serialized response - if available, or send back the exception
+                // that prevented the proper response to be formed, so clients don't keep waiting
+                try
+                {
+                    if (ReferenceEquals(response, null))
+                    {
+                        var rse = new RemotingServerException(processMessageException.Message);
+                        var serializedVoid = this.Serializer.Serialize([]);
+                        var serializedException = ReferenceEquals(null, processMessageException)
+                                                ? this.Serializer.Serialize([])
+                                                : this.Serializer.Serialize([new RemotingServerException(processMessageException.Message)]);
+                        var exceptionResponse = new RemoteInvocation()
+                        {
+                            MethodArguments = serializedVoid,
+                            ThrownException = serializedException,
+                            ReturnValue = serializedVoid,
+                            
+                        };
+
+                        response = this.Serializer.Serialize([exceptionResponse]);
+                    }
+
+                    Log?.Debug(Resources.Messages.RemotingServerProcessInvocationSendingResponse, msgId);
+
+                    await this.SendResponse(msgId, response);
+                }
+                catch (Exceptions.RemotingServerException rse)
+                {
+                    Log?.Error(rse);
+
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log?.Error(ex);
+
                     throw new Exceptions.ResponseProcessingException(ex);
                 }
-            }
-            catch (Exceptions.RemotingServerException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new Exceptions.RemotingServerException(ex);
             }
             finally
             {
@@ -149,13 +201,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             }
         }
 
-        virtual protected async Task<DataTransferObject> ProcessMessage(long msgId, byte[] msg)
+        virtual protected void DeserializeMessage(long msgId, byte[] msg, out RemoteInvocation ri)
         {
-            RemoteInvocation? ri;
-            Type type;
-            object? target;
-            object[]? args;
-
             try
             {
                 Log?.Debug(Resources.Messages.RemotingServerProcessMessageStart, msgId);
@@ -163,38 +210,74 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
                 ri = this.Serializer.Deserialize<RemoteInvocation>(msg);
 
                 Log?.Debug(Resources.Messages.RemotingServerProcessMessageDeserialized, msgId, (ReferenceEquals(null, ri.TargetMethodName) ? String.Empty : ri.TargetMethodName), ri.TargetInterfaceTypeGUID);
+            }
+            catch (Exception ex)
+            {
+                Log?.Error(ex);
 
-                if (String.IsNullOrEmpty(ri.TargetMethodName)) throw new InvalidDataException();
-                if (ReferenceEquals(null, ri.MethodArguments)) throw new InvalidDataException();
+                throw new Exceptions.MessageProcessingException(ex);
+            }
+        }
 
+        virtual protected void GetInvocationParameters(RemoteInvocation ri, out Type type, out object target, out object[]? args)
+        { 
+            try
+            {
                 type = this.LookUpType(ri.TargetInterfaceTypeGUID);
 
                 if (ReferenceEquals(null, type)) throw new InterfaceNotFoundException(ri.TargetInterfaceTypeGUID.ToString());
 
-                target = this.LookUpSingleton(type);
+                var targetForType = this.LookUpSingleton(type);
 
-                if (ReferenceEquals(null, target)) throw new ClassNotFoundException(Logging.Log.GetObjectTypeFullName(type));
+                if (ReferenceEquals(null, targetForType)) throw new ClassNotFoundException(Logging.Log.GetObjectTypeFullName(type));
 
-                args = (ri.MethodArguments.Data == null || ri.MethodArguments.Data.Length < 1) ? new object[0]
-                       : this.Serializer.Deserialize(ri.MethodArguments);
+                target = targetForType;
+                args = (ri.MethodArguments == null || ri.MethodArguments.Data == null || ri.MethodArguments.Data.Length < 1)
+                     ? new object[0] : this.Serializer.Deserialize(ri.MethodArguments);
             }
             catch (Exception ex)
             {
+                Log?.Error(ex);
+
                 throw new Exceptions.MessageProcessingException(ex);
             }
+        }
 
+        virtual protected Task<object?>? InvokeMethodAsync(string methodName, Type type, object target, object[]? args)
+        {
             try
             {
-                var thrownException = null as Exception;
-                var retVal = await Task.Run(() => this.Invoke(type, target, ri.TargetMethodName, args, out var thrownException));
+                Log?.Debug(Resources.Messages.RemotingServerInvoke, methodName, Logging.Log.GetObjectTypeFullName(target));
 
-                Log?.Debug(Resources.Messages.RemotingServerProcessMessageInvoked, msgId, Logging.Log.GetObjectTypeFullName(retVal), Logging.Log.GetObjectTypeFullName(thrownException));
+                // Since methods with the RemotedAspect attribute must return Task or Task<T>, we can safely cast here
+                var invocationTask = type.InvokeMember(methodName, BindingFlags.InvokeMethod, null, target, args, null) as Task;
 
+                if (ReferenceEquals(null, invocationTask)) throw new ArgumentNullException(nameof(invocationTask));
+
+                var taskWithResult = toTaskWithResult(invocationTask);
+
+                return taskWithResult;
+            }
+            catch (Exception ex)
+            {
+                Log?.Error(ex);
+
+                throw new Exceptions.MessageProcessingException(ex);
+            }
+        }
+
+        virtual protected DataTransferObject SerializeResponse(object? returnedValue, Exception? thrownException = null)
+        {
+            try
+            {
+                var serializedMethodArguments = this.Serializer.Serialize([]);
+                var serializedReturnValue = !ReferenceEquals(null, returnedValue) ? this.Serializer.Serialize([returnedValue]) : this.Serializer.Serialize([]);
+                var serializedThrownException = !ReferenceEquals(null, thrownException) ? this.Serializer.Serialize([thrownException]) : this.Serializer.Serialize([]);
                 var response = new RemoteInvocation()
                 {
-                    MethodArguments = this.Serializer.Serialize(args),
-                    ThrownException = thrownException,
-                    ReturnValue = !ReferenceEquals(null, retVal) ? this.Serializer.Serialize([retVal]) : this.Serializer.Serialize([]),
+                    MethodArguments = serializedMethodArguments,
+                    ThrownException = serializedThrownException,
+                    ReturnValue = serializedReturnValue,
                 };
 
                 var dto = this.Serializer.Serialize([response]);
@@ -203,26 +286,43 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             }
             catch (Exception ex)
             {
+                Log?.Error(ex);
+
                 throw new Exceptions.ResponseProcessingException(ex);
             }
         }
 
-        virtual protected object? Invoke(Type type, object target, string methodName, object[] args, out Exception? thrownException)
+        virtual protected async Task<DataTransferObject> ProcessMessage(long msgId, byte[] msg)
         {
+            this.DeserializeMessage(msgId, msg, out var ri);
+
+            if (String.IsNullOrEmpty(ri.TargetMethodName)) throw new InvalidDataException();
+            if (ReferenceEquals(null, ri.MethodArguments)) throw new InvalidDataException();
+
+            this.GetInvocationParameters(ri, out var type, out var target, out var args);
+
+            var taskWithResult = this.InvokeMethodAsync(ri.TargetMethodName, type, target, args);
+
+            RemoteMethodException? thrownException = null;
+            object? returnedValue = null;
+
             try
             {
-                thrownException = null;
-
-                Log?.Debug(Resources.Messages.RemotingServerInvoke, methodName, Logging.Log.GetObjectTypeFullName(target));
-
-                return type.InvokeMember(methodName, BindingFlags.InvokeMethod, null, target, args, null);
+                returnedValue = (ReferenceEquals(null, taskWithResult)) ? null : await taskWithResult;
             }
             catch (Exception ex)
             {
-                thrownException = ex;
-
-                return null;
+                // some fields of an exception may not be serializable, so create a shallow clone of it
+                thrownException = RemoteMethodException.CreateFrom(ex);
             }
+            finally
+            {
+                Log?.Debug(Resources.Messages.RemotingServerProcessMessageInvoked, msgId, Logging.Log.GetObjectTypeFullName(returnedValue), Logging.Log.GetObjectTypeFullName(thrownException));
+            }
+
+            var dto = this.SerializeResponse(returnedValue, thrownException);
+
+            return dto;
         }
 
         virtual protected Type LookUpType(Guid classId)

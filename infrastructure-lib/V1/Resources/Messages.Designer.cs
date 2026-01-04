@@ -19,7 +19,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Messages {
@@ -75,6 +75,15 @@ namespace com.schoste.ddd.Infrastructure.V1.Resources {
         internal static string ClassNotFoundException {
             get {
                 return ResourceManager.GetString("ClassNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Class &quot;{0}&quot; has an empty GUID.
+        /// </summary>
+        internal static string ClassNotRegisteredException {
+            get {
+                return ResourceManager.GetString("ClassNotRegisteredException", resourceCulture);
             }
         }
         
@@ -205,7 +214,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deserialized message {0} to invocation of method &quot;{1}&quot; in interface with GUID {2}.
+        ///   Looks up a localized string similar to Deserialized message {0} for invocation of method &quot;{1}&quot; in interface with GUID {2}.
         /// </summary>
         internal static string RemotingServerProcessMessageDeserialized {
             get {
@@ -214,7 +223,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invocation of message with id {0} returned value of type {1} and throw exception {2}.
+        ///   Looks up a localized string similar to Invocation of message with id {0} returned value of type {1} and threw exception {2}.
         /// </summary>
         internal static string RemotingServerProcessMessageInvoked {
             get {
@@ -282,6 +291,15 @@ namespace com.schoste.ddd.Infrastructure.V1.Resources {
         internal static string TypeNotSerializableException {
             get {
                 return ResourceManager.GetString("TypeNotSerializableException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The return value of method {0} is {1}, which isn&apos;t assignable to {2}.
+        /// </summary>
+        internal static string ValidateMethodNotATaskArgumentException {
+            get {
+                return ResourceManager.GetString("ValidateMethodNotATaskArgumentException", resourceCulture);
             }
         }
     }

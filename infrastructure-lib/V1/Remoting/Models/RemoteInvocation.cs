@@ -30,8 +30,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Models
 
         /// <summary>
         /// The exception thrown when invoking <see cref="TargetMethodName"/> on the remote singleton.
-        /// If null, then no exception was thrown.
         /// </summary>
-        public Exception? ThrownException { get; set; }
+        public DataTransferObject? ThrownException { get; set; }
     }
 }

@@ -153,6 +153,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Exception = null,
                 };
 
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
+
                 logEntries.Add(entry);
             }
         }
@@ -171,6 +173,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Message = msg,
                     Exception = null,
                 };
+
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
 
                 logEntries.Add(entry);
             }
@@ -191,6 +195,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Exception = null,
                 };
 
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
+
                 logEntries.Add(entry);
             }
         }
@@ -207,6 +213,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Message = String.Format(message, args),
                     Exception = null,
                 };
+
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
 
                 logEntries.Add(entry);
             }
@@ -227,6 +235,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Exception = null,
                 };
 
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
+
                 logEntries.Add(entry);
             }
         }
@@ -246,6 +256,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Exception = null,
                 };
 
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
+
                 logEntries.Add(entry);
             }
         }
@@ -262,6 +274,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Message = String.Format(message, args),
                     Exception = null,
                 };
+
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
 
                 logEntries.Add(entry);
             }
@@ -280,6 +294,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Exception = null,
                 };
 
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
+
                 logEntries.Add(entry);
             }
         }
@@ -297,6 +313,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Exception = null,
                 };
 
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToShortTimeString(), entry.Message);
+
                 logEntries.Add(entry);
             }
         }
@@ -313,6 +331,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Message = String.Format(message, args),
                     Exception = null,
                 };
+
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
 
                 logEntries.Add(entry);
             }
@@ -333,6 +353,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Logging.Mocked
                     Message = String.Format(LogFormats.GetMessageTrace, String.Join(", ", objsToStr)),
                     Exception = null,
                 };
+
+                Console.Out.WriteLine("{0}: {1}", entry.DateTime.ToLongTimeString(), entry.Message);
 
                 logEntries.Add(entry);
             }

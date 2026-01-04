@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace com.schoste.ddd.Infrastructure.V1.Aspects
 {
@@ -23,6 +25,42 @@ namespace com.schoste.ddd.Infrastructure.V1.Aspects
         static protected ILog? Log = Logging.Log.Instance;
 
         private IRemotingClient? remotingClient;
+
+        static private T? genericTaskInvocationMethod<T>(IRemotingClient? remotingClient, object?[]? args, Type interfaceType, MethodInfo implementingMethod)
+        {
+            var returnValue = null as object;
+            var ex = null as Exception;
+
+            remotingClient?.Invoke(args, out returnValue, out ex, interfaceType, implementingMethod);
+
+            if (!ReferenceEquals(ex, null)) throw ex;
+
+            return (T?)returnValue;
+        }
+
+        static private object? createAsyncInvocationTask(IRemotingClient? remotingClient, object?[]? args, Type interfaceType, MethodInfo implementingMethod)
+        {
+            if (ReferenceEquals(null, remotingClient));
+
+            var taskResultType = implementingMethod.ReturnType.GenericTypeArguments;
+            var taskType = (taskResultType.Length < 1) ? typeof(Task<object?>)
+                                                       : typeof(Task<>).MakeGenericType(taskResultType);
+            var actionType = (taskResultType.Length < 1) ? new[] { typeof(object) }
+                                                         : taskResultType;
+
+            var exParamRemotingClient = Expression.Constant(remotingClient, typeof(IRemotingClient));
+            var exParamArgs = Expression.Constant(args, typeof(object?[]));
+            var exParamInterfaceType = Expression.Constant(interfaceType, typeof(Type));
+            var exParamImplementingMethod = Expression.Constant(implementingMethod, typeof(MethodInfo));
+            var exCallTaskMethod = Expression.Call(typeof(RemotedAspect), nameof(genericTaskInvocationMethod), actionType, new Expression[] { exParamRemotingClient, exParamArgs, exParamInterfaceType, exParamImplementingMethod });
+
+            var action = Expression.Lambda(exCallTaskMethod).Compile();
+            var task = Activator.CreateInstance(taskType, action);
+
+            if (!ReferenceEquals(null, task)) ((Task) task).Start();
+
+            return task;
+        }
 
         /// <summary>
         /// Constrcutor of the attribute with no explicit interface to the remoting client specified.
@@ -70,17 +108,29 @@ namespace com.schoste.ddd.Infrastructure.V1.Aspects
         /// Methods are compatible if all their input-parameter types and their return type have custom attribute <see cref="SerializableAttribute"/>.
         /// </summary>
         /// <param name="method">Info of the method to validate</param>
+        /// <exception cref="ArgumentException">Thrown if the return type of <paramref name="method"/> isn't assignable to <see cref="System.Threading.Tasks.Task"/></exception>
         /// <exception cref="TypeNotSerializableException">Thrown if either one of the method's input-parameter types or its return type does not have the custom attribute <see cref="SerializableAttribute"/></exception>
         public void ValidateMethod(MethodInfo method)
         {
             var returnType = method.ReturnType;
             var parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
             var typesToCheck = parameterTypes.ToList();
-                typesToCheck.Add(returnType);
+
+            if (!returnType.IsAssignableTo(typeof(System.Threading.Tasks.Task)))
+            {
+                var msg = String.Format(Resources.Messages.ValidateMethodNotATaskArgumentException, method.Name, returnType.FullName, typeof(System.Threading.Tasks.Task).FullName);
+
+                throw new ArgumentException(msg, nameof(method));
+            }
+            else
+            {
+                typesToCheck.AddRange(returnType.GetGenericArguments());
+            }
 
             foreach (var typeToCheck in typesToCheck)
             {
-                if (typeof(void).Equals(typeToCheck)) continue;
+                if (typeof(void).Equals(typeToCheck)) continue; // void isn't serializable, but acceptable as return type
+                if (typeToCheck.IsAssignableTo(typeof(System.Collections.IEnumerable))) continue; // IEnumerable doesn't have the SerializableAttribute, but is acceptable as return type
 
                 var serializableAttr = typeToCheck.GetCustomAttribute(typeof(SerializableAttribute));
 
@@ -113,7 +163,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Aspects
 
                 Log?.Debug(Resources.Messages.RemotedAspectAfterMethodCall, implementingMethod.Name, Logging.Log.GetObjectTypeFullName(target));
 
-                remotingClient?.Invoke(args, out returnValue, out ex, interfaceType, implementingMethod);
+                returnValue = createAsyncInvocationTask(remotingClient, args, interfaceType, implementingMethod);
             }
             catch (Exceptions.InfrastructureException)
             {

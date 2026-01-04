@@ -12,43 +12,61 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Mocked
 
     public class Serializer : Shared.Services.ISerializer
     {
-        protected readonly IDictionary<Guid, Type> ClsGuidsToTypesMap = new Dictionary<Guid, Type>();
-        protected readonly IDictionary<Type, Guid> TypesToClsGuidsMap = new Dictionary<Type, Guid>();
+        public readonly IDictionary<Guid, Type> ClsGuidsToTypesMap = new Dictionary<Guid, Type>();
+        public readonly IDictionary<Type, Guid> TypesToClsGuidsMap = new Dictionary<Type, Guid>();
 
         public Serializer()
         {
         }
 
+        /// <inheritdoc/>
         virtual public void RegisterGuidForType(Guid guidToRegister, Type registrationForType)
         {
             this.ClsGuidsToTypesMap[guidToRegister] = registrationForType;
             this.TypesToClsGuidsMap[registrationForType] = guidToRegister;
         }
 
-        virtual public Type LookUpType(Guid classId)
+        /// <inheritdoc/>
+        virtual public bool TryLookUpType(Guid forClassId, out Type? type)
         {
-            if (this.ClsGuidsToTypesMap.ContainsKey(classId)) return this.ClsGuidsToTypesMap[classId];
+            type = null;
+
+            if (this.ClsGuidsToTypesMap.ContainsKey(forClassId))
+            {
+                type = this.ClsGuidsToTypesMap[forClassId];
+
+                return true;
+            }
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var typesOfAssemblies = assemblies.SelectMany(asm => asm.GetTypes());
-            var type = typesOfAssemblies.Where(t => t != null).FirstOrDefault(t => t.GUID == classId);
 
-            if (type == null) throw new ClassNotFoundException(classId.ToString());
+            if (ReferenceEquals(typesOfAssemblies, null)) return false;
 
-            this.ClsGuidsToTypesMap[classId] = type;
+            type = typesOfAssemblies.Where(t => t != null).FirstOrDefault(t => t.GUID == forClassId);
 
-            return type;
+            if (type == null) return false;
+            
+            this.ClsGuidsToTypesMap[forClassId] = type;
+
+            return true;
         }
 
-        virtual public Guid LookUpTypeGuid(Type type)
+        /// <inheritdoc/>
+        virtual public bool TryLookUpTypeGuid(Type forType, out Guid? guid)
         {
-            if (ReferenceEquals(null, type)) throw new ArgumentNullException(nameof(type));
-            if (this.TypesToClsGuidsMap.ContainsKey(type)) return this.TypesToClsGuidsMap[type];
+            guid = null;
 
-            return type.GUID;
+            if (ReferenceEquals(null, forType)) throw new ArgumentNullException(nameof(forType));
+            if (this.TypesToClsGuidsMap.ContainsKey(forType)) guid = this.TypesToClsGuidsMap[forType];
+
+            guid = guid ?? forType.GUID;
+
+            return (guid != null);
         }
 
-        public T Deserialize<T>(byte[] data)
+        /// <inheritdoc/>
+        virtual public T Deserialize<T>(byte[] data)
         {
             ArgumentNullException.ThrowIfNull(data);
 
@@ -57,14 +75,16 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Mocked
             return JsonSerializer.Deserialize<T>(data);
         }
 
-        public object Deserialize(byte[] data, Type type)
+        /// <inheritdoc/>
+        virtual public object Deserialize(byte[] data, Type type)
         {
             ArgumentNullException.ThrowIfNull(data);
 
             return JsonSerializer.Deserialize(data, type);
         }
 
-        public object[] Deserialize(DataTransferObject dto)
+        /// <inheritdoc/>
+        virtual public object[] Deserialize(DataTransferObject dto)
         {
             ArgumentNullException.ThrowIfNull(dto);
 
@@ -75,7 +95,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Mocked
 
             for (var i = 0; i < objects.Length; i++)
             {
-                var type = this.LookUpType(dtos[i].ClassId);
+                if (Guid.Empty.Equals(dtos[i].ClassId)) throw new ClassNotRegisteredException(String.Empty);
+                if(!this.TryLookUpType(dtos[i].ClassId, out var type)) throw new ClassNotRegisteredException(dtos[i].ClassId.ToString());
 
                 objects[i] = this.Deserialize(dtos[i].Data, type);
             }
@@ -83,17 +104,20 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Mocked
             return objects;
         }
 
-        public byte[] Serialize<T>(T data)
+        /// <inheritdoc/>
+        virtual public byte[] Serialize<T>(T data)
         {
             return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data));
         }
 
-        public byte[] Serialize(object data, Type type)
+        /// <inheritdoc/>
+        virtual public byte[] Serialize(object data, Type type)
         {
             return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data, type));
         }
 
-        public DataTransferObject Serialize(object[] objects)
+        /// <inheritdoc/>
+        virtual public DataTransferObject Serialize(object?[] objects)
         {
             if (object.ReferenceEquals(objects, null)) throw new ArgumentNullException(nameof(objects));
             if (objects.Length == 0) return new DataTransferObject()
@@ -107,8 +131,14 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting.Mocked
             for (var i = 0; i < objects.Length; i++)
             {
                 var type = objects[i].GetType();
+                var typeFullName = type.FullName ?? String.Empty;
+                var typeGuid = type.GUID as Guid?;
+
+                if (!this.TryLookUpTypeGuid(type, out typeGuid)) throw new ClassNotRegisteredException(typeFullName);
+                if ((typeGuid == null) || Guid.Empty.Equals(typeGuid)) throw new ClassNotRegisteredException(typeFullName);
+
                 var data = this.Serialize(objects[i], type);
-                var dto = new DataTransferObject(type.GUID, data);
+                var dto = new DataTransferObject((Guid)typeGuid, data);
 
                 dtos[i] = dto;
             }
