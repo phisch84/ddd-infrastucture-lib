@@ -100,7 +100,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             {
                 var deserializedException = this.Serializer.Deserialize(ri.ThrownException);
 
-                if (deserializedException.Length > 0)
+                if (!ReferenceEquals(null, deserializedException) && (deserializedException.Length > 0))
                 {
                     if (deserializedException[0] is RemoteMethodException) ex = deserializedException[0] as RemoteMethodException;
                     if (deserializedException[0] is RemotingServerException) ex = deserializedException[0] as RemotingServerException;

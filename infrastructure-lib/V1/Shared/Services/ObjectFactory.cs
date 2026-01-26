@@ -82,11 +82,12 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
         /// <returns>A new instance of the implemented class wrapped in an <see cref="AspectProxy{T}"/></returns>
         /// <exception cref="Exceptions.InterfaceNotFoundException">Thrown if there is no implementing class configured for <typeparamref name="T"/></exception>
         /// <exception cref="V1.Exceptions.InfrastructureException">Thrown if an exception occurred while creating the instance of the implementing class</exception>
-        static public T CreateInstance<T>(params object[] args) where T : class
+        static public T? CreateInstance<T>(params object[] args) where T : class
         {
             var interfaceType = typeof(T);
             var interfaceFullName = interfaceType.FullName;
 
+            if (String.IsNullOrEmpty(interfaceFullName)) throw new V1.Exceptions.InfrastructureException(new InvalidOperationException());
             if (!Configuration.InterfaceToImplementationMap.TryGetValue(interfaceFullName, out var implementingClassName)) implementingClassName = null;
             if (implementingClassName == null) throw new Exceptions.InterfaceNotFoundException(interfaceFullName);
 
@@ -94,7 +95,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
             {
                 var implementingType = getTypeFromAssemblyForClass(implementingClassName);
                 var implementingObj = Activator.CreateInstance(implementingType, args);
-                var implementingClass = Convert.ChangeType(implementingObj, implementingType);
+                var implementingClass = Convert.ChangeType(implementingObj, implementingType)!; // will never be null here - according to the description of Convert.ChangeType()
                 var proxiedClass = AspectProxy<T>.Create((T)implementingClass, interfaceType) as T;
 
                 return proxiedClass;

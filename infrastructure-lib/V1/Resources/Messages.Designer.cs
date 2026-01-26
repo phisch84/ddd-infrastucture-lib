@@ -286,7 +286,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Return type or parameter type {0} of method {1} has not SerializableAttribute and therefore cannot be used on aspect {2}.
+        ///   Looks up a localized string similar to Return type or parameter type {0} of method {1} has no SerializableAttribute and therefore cannot be used on aspect {2}.
         /// </summary>
         internal static string TypeNotSerializableException {
             get {

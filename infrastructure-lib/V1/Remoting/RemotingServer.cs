@@ -162,7 +162,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
                 {
                     if (ReferenceEquals(response, null))
                     {
-                        var rse = new RemotingServerException(processMessageException.Message);
+                        var rse = new RemotingServerException(processMessageException!.Message); // if the response is null, then the exception is expected to be not null
                         var serializedVoid = this.Serializer.Serialize([]);
                         var serializedException = ReferenceEquals(null, processMessageException)
                                                 ? this.Serializer.Serialize([])

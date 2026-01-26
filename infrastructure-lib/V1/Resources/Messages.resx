@@ -187,7 +187,7 @@
     <value>Method {0} does not fulfill necessary criteria for aspect {1}</value>
   </data>
   <data name="TypeNotSerializableException" xml:space="preserve">
-    <value>Return type or parameter type {0} of method {1} has not SerializableAttribute and therefore cannot be used on aspect {2}</value>
+    <value>Return type or parameter type {0} of method {1} has no SerializableAttribute and therefore cannot be used on aspect {2}</value>
   </data>
   <data name="RemotingClientException" xml:space="preserve">
     <value>An exception occurred while processing a remoted call on the client side. Check the inner exceptions for details</value>

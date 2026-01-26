@@ -181,7 +181,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
                 {
                     this.ifMethodsToClsMethods[interfaceMethod] = this.GetClassMethodForInterfaceMethod(interfaceMethod);
 
-                    if (this.ifMethodsToClsMethods[interfaceMethod] != null) allCustomAttributes.AddRange(this.ifMethodsToClsMethods[interfaceMethod].CustomAttributes);
+                    if (!ReferenceEquals(this.ifMethodsToClsMethods[interfaceMethod], null)) allCustomAttributes.AddRange(this.ifMethodsToClsMethods[interfaceMethod]!.CustomAttributes); // null check happened right before
                 }
                 else
                 {
