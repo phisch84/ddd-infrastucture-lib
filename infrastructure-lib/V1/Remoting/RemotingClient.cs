@@ -92,6 +92,15 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             }
         }
 
+        virtual public T? Invoke<T>(object?[]? args, Type interfaceType, MethodInfo implementingMethod) where T : class
+        {
+            this.Invoke(args, out var returnValue, out var exception, interfaceType, implementingMethod);
+
+            if (!ReferenceEquals(exception, null)) throw exception;
+
+            return returnValue as T;
+        }
+
         virtual protected void DeserializeResponse(RemoteInvocation ri, out object? returnValue, out Exception? ex)
         {
             ex = null;

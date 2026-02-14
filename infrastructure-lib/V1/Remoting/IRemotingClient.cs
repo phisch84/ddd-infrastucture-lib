@@ -33,6 +33,19 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         void Invoke(object?[]? args, out object? returnValue, out Exception? ex, Type interfaceType, MethodInfo implementingMethod);
 
         /// <summary>
+        /// Wraps the <see cref="Invoke(object?[], out object?, out Exception?, Type, MethodInfo)"/> method and returns the return value of the call directly,
+        /// as well as it will rethrow any exception as <see cref="Exceptions.RemoteMethodException"/> thrown by the invoked method, instead of returning it as an out parameter.
+        /// This method is intended to be used by clients which want to call the <see cref="RemotingServer"/> directly, without using the <see cref="RemotedAspect"/>.
+        /// </summary>
+        /// <typeparam name="T">The expected type of the return value</typeparam>
+        /// <param name="args">Arguments to be passed to the invoked method. If null, the method expects no arguments.</param>
+        /// <param name="interfaceType">The <see cref="Type"/> of the interface of the class which implements the method</param>
+        /// <param name="implementingMethod">Information about the method to invoke</param>
+        /// <returns>The value returned by the remotely invoked method</returns>
+        /// <exception cref="Exceptions.RemoteMethodException">Encapsulates any exception that was thrown by the remote method</exception>
+        T? Invoke<T>(object?[]? args, Type interfaceType, MethodInfo implementingMethod) where T : class;
+
+        /// <summary>
         /// Sends a stop message to the <see cref="IRemotingServer"/>.
         /// </summary>
         Task StopServer();

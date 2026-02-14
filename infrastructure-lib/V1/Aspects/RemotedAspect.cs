@@ -33,7 +33,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Aspects
 
             remotingClient?.Invoke(args, out returnValue, out ex, interfaceType, implementingMethod);
 
-            if (!ReferenceEquals(ex, null)) throw ex;
+            if (!ReferenceEquals(ex, null)) throw new RemoteMethodException(ex);
 
             return (T?)returnValue;
         }

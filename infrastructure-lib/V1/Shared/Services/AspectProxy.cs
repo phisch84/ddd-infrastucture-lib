@@ -49,6 +49,19 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
         }
 
         /// <summary>
+        /// Returns the underlying instance of <typeparamref name="T"/> if <paramref name="obj"/> was decorated
+        /// by an instance of <see cref="AspectProxy{T}"/>; otherwise, returns <c>null</c>.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        static public T? Unpack(object? obj)
+        {
+            if (obj is AspectProxy<T> proxy) return proxy.decorated;
+
+            return obj as T;
+        }
+
+        /// <summary>
         /// Called when any method of the proxy's underlying class is invoked, allowing to
         /// manipulate the call itself and the returned value(s).
         /// </summary>
