@@ -45,6 +45,14 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             }
         }
 
+        public interface IDerivedTestClass : ITestClass
+        {
+        }
+
+        public class DerivedTestClass : TestClass, IDerivedTestClass
+        {
+        }
+
         /// <summary>
         /// Gets or sets the test context which provides
         /// information about and functionality for the current test run.
@@ -60,20 +68,21 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         {
             testContextInstance = testContext;
 
-            var ifName = typeof(ITestClass).FullName;
-            var clsName = typeof(TestClass).FullName;
+            ObjectFactory.Register(typeof(ITestClass), typeof(TestClass));
+            ObjectFactory.RegisterSingleton<ITestClass>(ObjectFactory.CreateInstance<ITestClass>()!);
 
-            ObjectFactory.Configuration.InterfaceToImplementationMap[ifName] = clsName; // Configure test class
-            ObjectFactory.RegisterSingleton<ITestClass>(ObjectFactory.CreateInstance<ITestClass>());
+            ObjectFactory.Register(typeof(IDerivedTestClass), typeof(DerivedTestClass));
+            ObjectFactory.RegisterSingleton<IDerivedTestClass>(ObjectFactory.CreateInstance<IDerivedTestClass>()!);
 
-            ObjectFactory.Configuration.InterfaceToImplementationMap[typeof(ISerializer).FullName] = typeof(Mocked.Serializer).FullName; // Configure the serializer to use
+            ObjectFactory.Register(typeof(ISerializer), typeof(Mocked.Serializer)); // Configure the serializer to use
             ObjectFactory.RegisterSingleton(ObjectFactory.CreateInstance<ISerializer>());
         }
 
         [TestInitialize]
         public void Reset()
         {
-            ObjectFactory.GetInstance<ITestClass>().MethodWasCalled = false;
+            ObjectFactory.GetInstance<ITestClass>()!.MethodWasCalled = false;
+            ObjectFactory.GetInstance<IDerivedTestClass>()!.MethodWasCalled = false;
         }
 
         [TestMethod]
@@ -139,6 +148,24 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             Assert.IsNull(exceptionString);
             Assert.IsNotNull(returnValueString);
             Assert.AreEqual(param.ToString(), returnValueString.ToString());
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public void TestInvokeDerivedVoid()
+        {
+            var testClassInstance = ObjectFactory.GetInstance<IDerivedTestClass>();
+            var testClassMethodInfo = testClassInstance!.GetType().GetMethod(nameof(DerivedTestClass.TestMethodVoid));
+            var serializer = ObjectFactory.GetInstance<ISerializer>();
+            var client = new Mocked.LocalClient(serializer!);
+
+            Assert.IsNotNull(testClassMethodInfo);
+
+            client.Invoke(new object[0], out var returnValue, out var exception, typeof(IDerivedTestClass), testClassMethodInfo);
+
+            Assert.IsTrue(testClassInstance.MethodWasCalled);
+            Assert.IsNull(exception);
+            Assert.IsNull(returnValue);
         }
     }
 }

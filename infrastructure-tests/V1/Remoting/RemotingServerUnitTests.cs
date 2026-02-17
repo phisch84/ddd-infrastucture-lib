@@ -59,6 +59,14 @@
 
         }
 
+        public interface IDerivedTestClass : ITestClass
+        {
+        }
+
+        public class DerivedTestClass : TestClass, IDerivedTestClass
+        {
+        }
+
         /// <summary>
         /// Gets or sets the test context which provides
         /// information about and functionality for the current test run.
@@ -74,20 +82,21 @@
         {
             testContextInstance = testContext;
 
-            var ifName = typeof(ITestClass).FullName;
-            var clsName = typeof(TestClass).FullName;
+            ObjectFactory.Register(typeof(ITestClass), typeof(TestClass));
+            ObjectFactory.RegisterSingleton<ITestClass>(ObjectFactory.CreateInstance<ITestClass>()!);
 
-            ObjectFactory.Configuration.InterfaceToImplementationMap[ifName] = clsName; // Configure test class
-            ObjectFactory.RegisterSingleton<ITestClass>(ObjectFactory.CreateInstance<ITestClass>());
+            ObjectFactory.Register(typeof(IDerivedTestClass), typeof(DerivedTestClass));
+            ObjectFactory.RegisterSingleton<IDerivedTestClass>(ObjectFactory.CreateInstance<IDerivedTestClass>()!);
 
-            ObjectFactory.Configuration.InterfaceToImplementationMap[typeof(ISerializer).FullName] = typeof(Mocked.Serializer).FullName; // Configure the serializer to use
+            ObjectFactory.Register(typeof(ISerializer), typeof(Mocked.Serializer)); // Configure the serializer to use
             ObjectFactory.RegisterSingleton(ObjectFactory.CreateInstance<ISerializer>());
         }
 
         [TestInitialize]
         public void Reset()
         {
-            ObjectFactory.GetInstance<ITestClass>().MethodWasCalled = false;
+            ObjectFactory.GetInstance<ITestClass>()!.MethodWasCalled = false;
+            ObjectFactory.GetInstance<IDerivedTestClass>()!.MethodWasCalled = false;
         }
 
         [TestMethod]
@@ -95,12 +104,12 @@
         public void TestProcessMessageVoid()
         {
             var tcInstance = ObjectFactory.GetInstance<ITestClass>();
-            var testClassMethodInfo = tcInstance.GetType().GetMethod(nameof(TestClass.TestMethodVoid));
+            var testClassMethodInfo = tcInstance!.GetType().GetMethod(nameof(TestClass.TestMethodVoid));
 
             Assert.IsNotNull(testClassMethodInfo);
 
             var serializer = ObjectFactory.GetInstance<ISerializer>();
-            var cliInstance = new LocalClient(serializer);
+            var cliInstance = new LocalClient(serializer!);
             var srvInstance = cliInstance.LocalServer;
             var methodInvocationMsg = cliInstance.SerializeInvocation([], typeof(ITestClass), testClassMethodInfo);
             var actualDTO = srvInstance.ProcessMessage(0, methodInvocationMsg);
@@ -137,6 +146,23 @@
             var cliInstance = new LocalClient(serializer);
             var srvInstance = cliInstance.LocalServer;
             var methodInvocationMsg = cliInstance.SerializeInvocation([], typeof(ITestClass), testClassMethodInfo);
+            var actualDTO = srvInstance.ProcessMessage(0, methodInvocationMsg);
+
+            Assert.IsTrue(tcInstance.MethodWasCalled);
+        }
+
+        [TestMethod]
+        public void TestProcessMessageDerivedVoidAsync()
+        {
+            var tcInstance = ObjectFactory.GetInstance<IDerivedTestClass>();
+            var testClassMethodInfo = tcInstance!.GetType().GetMethod(nameof(DerivedTestClass.TestMethodVoidAsync));
+
+            Assert.IsNotNull(testClassMethodInfo);
+
+            var serializer = ObjectFactory.GetInstance<ISerializer>();
+            var cliInstance = new LocalClient(serializer!);
+            var srvInstance = cliInstance.LocalServer;
+            var methodInvocationMsg = cliInstance.SerializeInvocation([], typeof(IDerivedTestClass), testClassMethodInfo);
             var actualDTO = srvInstance.ProcessMessage(0, methodInvocationMsg);
 
             Assert.IsTrue(tcInstance.MethodWasCalled);

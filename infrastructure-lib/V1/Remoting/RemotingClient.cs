@@ -27,7 +27,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         static protected ILog? Log = Logging.Log.Instance;
 
         protected ISerializer Serializer;
-        protected ConcurrentDictionary<long, RemoteInvocation?> ResponsesCache = new ConcurrentDictionary<long, RemoteInvocation?>();
+        protected ConcurrentDictionary<long, byte[]> ResponsesCache = new ConcurrentDictionary<long, byte[]>();
         protected AutoResetEvent ResponseArrivedEvent = new AutoResetEvent(false);
         protected TimeSpan ResponseWaitTimeout;
         protected Task? ResponseReader = null;
@@ -80,7 +80,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
                     if (this.ResponseReader == null) this.ResponseReader = Task.Run(() => this.ReadNextResponses());
                 }
 
-                var response = this.WaitForResponse(msgId);
+                var responseData = this.WaitForResponse(msgId);
+                var response = this.ProcessResponse(responseData);
 
                 this.DeserializeResponse(response, out returnValue, out ex);
             }
@@ -147,9 +148,8 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
                 try
                 {
                     var responseData = this.ReadNextResponse(out var msgId);
-                    var response = this.ProcessResponse(responseData);
 
-                    this.ResponsesCache[msgId] = response;
+                    this.ResponsesCache[msgId] = responseData;
 
                     lock (this.ResponseReaderLock)
                     {
@@ -172,7 +172,7 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             }
         }
 
-        virtual protected RemoteInvocation WaitForResponse(long msgId)
+        virtual protected byte[] WaitForResponse(long msgId)
         {
             try
             {

@@ -249,8 +249,29 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             {
                 Log?.Debug(Resources.Messages.RemotingServerInvoke, methodName, Logging.Log.GetObjectTypeFullName(target));
 
+                // let's assume the method will be found on the provided interface type, otherwise we will look for it in the other interfaces implemented by the target's type
+                var typeToInvokeOn = type;
+
+                // Check if the method exists in the declared interface.
+                var membersToInvoke = type.GetMember(methodName, BindingFlags.Public | BindingFlags.Instance);
+
+                if (membersToInvoke.Length < 1)
+                {
+                    // It wasn't found in the declaring interface; check other interfaces of the type.
+                    var interfaces = type.GetInterfaces();
+
+                    foreach (var @interface in interfaces)
+                    {
+                        membersToInvoke = @interface.GetMember(methodName, BindingFlags.Public | BindingFlags.Instance);
+
+                        if (membersToInvoke.Length < 1) continue;
+
+                        typeToInvokeOn = @interface;
+                    }
+                }
+
                 // Since methods with the RemotedAspect attribute must return Task or Task<T>, we can safely cast here
-                var invocationTask = type.InvokeMember(methodName, BindingFlags.InvokeMethod, null, target, args, null) as Task;
+                var invocationTask = typeToInvokeOn.InvokeMember(methodName, BindingFlags.InvokeMethod, null, target, args, null) as Task;
 
                 if (ReferenceEquals(null, invocationTask)) throw new ArgumentNullException(nameof(invocationTask));
 
