@@ -25,7 +25,8 @@
     <Copyright>Philipp Schosteritsch (c) 2026</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <Version>$(VersionPrefix)</Version>
+    <Version>$(AssemblyVersion)</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
