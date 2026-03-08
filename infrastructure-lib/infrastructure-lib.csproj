@@ -8,17 +8,32 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>ddd-$(AssemblyName)</PackageId>
     <Title>Boiler plate code for the Infrastructure layer for Domain Driven Design</Title>
-    <Authors>Phish84</Authors>
+    <Authors>Philipp Schosteritsch</Authors>
     <Company>SCHOSTE.COM</Company>
     <Product>DDD-$(AssemblyName)</Product>
-    <PackageProjectUrl></PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/phisch84/ddd-infrastucture-lib</PackageProjectUrl>
     <RepositoryUrl>https://github.com/phisch84/ddd-infrastucture-lib</RepositoryUrl>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageTags>ddd; Domain Driven Design; dao; Data Access Object; AOP; Aspect Oriented Programming</PackageTags>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
     <AssemblyTitle>Domain Driven Design Infrastructure Layer Library</AssemblyTitle>
+    <Description>Provides boiler plate code and classes for projects that feature a Domain Driven Design (DDD) architecture:
+*) An ObjectFactory and an AspectProxy that features Aspect Oriented Programming (AOP) and Dependency Injection.
+*) For the Data Access Layer (DAL) there is a general Data Access Object (DAO) that features loading data from any kind of underlying storage into Data Objects (DO) for further use.
+*) Remoting servers and clients to implemented remoted calls with very little communication management.</Description>
+    <Copyright>Philipp Schosteritsch (c) 2026</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <Version>$(VersionPrefix)</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="V1\Resources\LogFormats.Designer.cs">
