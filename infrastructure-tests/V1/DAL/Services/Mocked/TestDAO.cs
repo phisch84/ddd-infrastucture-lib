@@ -24,7 +24,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services.Mocked
 
         protected override TestDO CreateInternal(long id, object[] args)
         {
-            return new TestDO(0);
+            return new TestDO(id);
         }
 
         protected override void SaveInternal(IEnumerable<TestDO> dataObjects)
@@ -41,11 +41,11 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services.Mocked
         {
             Thread.Sleep(100);
 
-            if (ReferenceEquals(ids, null)) return this.Storage.Values;
+            if (ReferenceEquals(ids, null)) return this.Storage.Values.ToList();
 
-            var result = this.Storage.Values.Where(v => ids.Contains(v.Id));
+            var result = this.Storage.Values.Where(v => ids.Contains(v.Id)).ToList();
 
-            return result;
+            return [.. result];
         }
 
         protected override void DeleteInternal(IEnumerable<TestDO> dataObjects)

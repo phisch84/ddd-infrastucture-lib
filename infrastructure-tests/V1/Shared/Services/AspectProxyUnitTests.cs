@@ -249,6 +249,19 @@ namespace com.schoste.ddd.Infrastructure.V1.Shared.Services
         }
 
         /// <summary>
+        /// Tests if <see cref="AspectProxy{T}.Unpack(object?)"/> returns the underlying instance of the proxied class.
+        /// </summary>
+        [TestMethod]
+        public void TestUnpack()
+        {
+            var tcInstance = ObjectFactory.CreateInstance<ITestClass>();
+            var unpacked = AspectProxy<ITestClass>.Unpack(tcInstance);
+
+            Assert.IsNotNull(unpacked);
+            Assert.AreNotSame(tcInstance, unpacked);
+        }
+
+        /// <summary>
         /// Tests if a call to a method that expects no parameters and returns void is handled as expected.
         /// Executes <see cref="ITestClass.TM_VoidNoException"/>
         /// </summary>

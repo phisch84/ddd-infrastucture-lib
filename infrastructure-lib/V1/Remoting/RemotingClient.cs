@@ -60,6 +60,9 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
         /// <inheritdoc/>
         virtual public void Invoke(object?[]? args, out object? returnValue, out Exception? ex, Type interfaceType, MethodInfo remoteMethod)
         {
+            if (ReferenceEquals(null, interfaceType)) throw new ArgumentNullException(nameof(interfaceType));
+            if (ReferenceEquals(null, remoteMethod)) throw new ArgumentNullException(nameof(remoteMethod));
+
             Log?.Debug(Resources.Messages.RemotingClientInvoke, remoteMethod.Name, Logging.Log.GetObjectTypeFullName(interfaceType));
 
             var payload = this.SerializeInvocation(args, interfaceType, remoteMethod);
@@ -93,13 +96,28 @@ namespace com.schoste.ddd.Infrastructure.V1.Remoting
             }
         }
 
+        /// <inheritdoc/>
         virtual public T? Invoke<T>(object?[]? args, Type interfaceType, MethodInfo implementingMethod) where T : class
         {
+            if (ReferenceEquals(null, interfaceType)) throw new ArgumentNullException(nameof(interfaceType));
+            if (ReferenceEquals(null, implementingMethod)) throw new ArgumentNullException(nameof(implementingMethod));
+
             this.Invoke(args, out var returnValue, out var exception, interfaceType, implementingMethod);
 
             if (!ReferenceEquals(exception, null)) throw exception;
 
             return returnValue as T;
+        }
+
+        /// <inheritdoc/>
+        virtual public void Invoke(object?[]? args, Type interfaceType, MethodInfo implementingMethod)
+        {
+            if (ReferenceEquals(null, interfaceType)) throw new ArgumentNullException(nameof(interfaceType));
+            if (ReferenceEquals(null, implementingMethod)) throw new ArgumentNullException(nameof(implementingMethod));
+
+            this.Invoke(args, out var returnValue, out var exception, interfaceType, implementingMethod);
+
+            if (!ReferenceEquals(exception, null)) throw exception;
         }
 
         virtual protected void DeserializeResponse(RemoteInvocation ri, out object? returnValue, out Exception? ex)

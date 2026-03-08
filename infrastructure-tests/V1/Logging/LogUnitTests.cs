@@ -1,5 +1,6 @@
 ﻿namespace com.schoste.ddd.Infrastructure.V1.Logging
 {
+    using System;
     using V1.Shared.Services;
 
     /// <summary>
@@ -38,6 +39,79 @@
             Assert.IsTrue(Log.Instance.Level.HasFlag(Log.LogLevels.Warning));
             Assert.IsTrue(Log.Instance.Level.HasFlag(Log.LogLevels.Error));
             Assert.IsTrue(Log.Instance.Level.HasFlag(Log.LogLevels.Fatal));
+        }
+
+        /// <summary>
+        /// Tests if <see cref="Log.GetLogMessage(Log.LogLevels, Exception?)"/> gets the expected message on a log
+        /// level neither <see cref="Log.LogLevels.Debug"/> nor <see cref="Log.LogLevels.Trace"/> with an exception.
+        /// </summary>
+        [TestMethod]
+        public void TestGetLogMessageInfo()
+        {
+            var zero = 0;
+            var divideByZero = new Action(() => { var x = 1 / zero; });
+
+            try
+            {
+                divideByZero();
+            }
+            catch (Exception ex)
+            {
+                var logMessage = String.Format(LogFormats.GetMessageException, ex.GetType().FullName, ex.Message);
+                var expectedMessage = logMessage.Trim(['\r', '\n']);
+                var actualMessage = Log.GetLogMessage(Log.LogLevels.Info, ex).Trim(['\r', '\n']);
+
+                Assert.AreEqual(expectedMessage, actualMessage);
+            }
+        }
+
+        /// <summary>
+        /// Tests if <see cref="Log.GetLogMessage(Log.LogLevels, Exception?)"/> gets the expected message on a log
+        /// level either <see cref="Log.LogLevels.Debug"/> or <see cref="Log.LogLevels.Trace"/> with an exception.
+        /// The message is expected to contain the stack trace of each exception, as well as a walk through nested exceptions
+        /// </summary>
+        [TestMethod]
+        public void TestGetLogMessageDebug()
+        {
+            var zero = 0;
+            var divideByZero = new Action(() => { var x = 1 / zero; });
+            var nestedExecution = new Action(() =>
+            {
+                try
+                {
+                    divideByZero();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("nestedExecution_Exception", ex);
+                }
+            });
+
+            try
+            {
+                nestedExecution();
+            }
+            catch (Exception ex)
+            {
+                var logMessage = String.Format(LogFormats.GetMessageExceptionDebug, ex.GetType().FullName, ex.Message, "");
+                var actualMessage = Log.GetLogMessage(Log.LogLevels.Debug, ex).Trim(['\r', '\n']);
+
+                Assert.IsTrue(actualMessage.Contains("System.Exception: nestedExecution_Exception"));
+                Assert.IsTrue(actualMessage.Contains("System.DivideByZeroException"));
+            }
+        }
+
+        /// <summary>
+        /// Tests if <see cref="Log.GetLogMessage(Log.LogLevels, Exception?)"/> gets the expected message without an exception.
+        /// </summary>
+        [TestMethod]
+        public void TestGetLogMessageNoException()
+        {
+            var logMessage = String.Format(LogFormats.GetMessageException, "NULL", String.Empty);
+            var expectedMessage = logMessage.Trim(['\r', '\n']);
+            var actualMessage = Log.GetLogMessage(Log.LogLevels.Info, null).Trim(['\r', '\n']);
+
+            Assert.AreEqual(expectedMessage, actualMessage);
         }
 
         /// <summary>

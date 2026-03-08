@@ -7,6 +7,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
     using DAL.Models;
     using DAL.Services.Mocked;
     using Shared.Services;
+    using System.Runtime.InteropServices.ComTypes;
 
     /// <summary>
     /// V1 unit tests of the <see cref="DataAccessObject{DO, ID}"/> class
@@ -331,6 +332,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
         /// and <see cref="IDataAccessObject{DO, ID}.BeforeDeleteDataObjects"/>
         /// and <see cref="IDataAccessObject{DO, ID}.AfterDeleteDataObjects"/>
         /// are called properly.
+        /// </summary>
         [TestMethod]
         public void TestSaveAndGetAndDelete()
         {
@@ -352,8 +354,8 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
 
             var gotAfterDeleteDataObject = TestDAO.Get();
 
-            Assert.IsNotNull(gotDataObjects);
-            Assert.AreEqual(0, gotDataObjects.Count());
+            Assert.IsNotNull(gotAfterDeleteDataObject);
+            Assert.AreEqual(0, gotAfterDeleteDataObject.Count());
         }
 
         /// <summary>
@@ -369,6 +371,7 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
         /// and <see cref="IDataAccessObject{DO, ID}.BeforeDeleteDataObjects"/>
         /// and <see cref="IDataAccessObject{DO, ID}.AfterDeleteDataObjects"/>
         /// are called properly.
+        /// </summary>
         [TestMethod]
         public void TestSaveAndGetAndDeleteAsync()
         {
@@ -390,8 +393,170 @@ namespace com.schoste.ddd.Infrastructure.V1.DAL.Services
 
             var gotAfterDeleteDataObject = TestDAO.GetAsync().Result;
 
+            Assert.IsNotNull(gotAfterDeleteDataObject);
+            Assert.AreEqual(0, gotAfterDeleteDataObject.Count());
+        }
+
+        /// <summary>
+        /// Tests the correct implementation of <see cref="IDataAccessObject{DO, ID}.Save(IEnumerable{DO})"/>,
+        /// and the correct implementation of <see cref="IDataAccessObject{DO, ID}.Get()"/>,
+        /// and the correct implementation of <see cref="IDataAccessObject{DO, ID}.Delete(IEnumerable{DO})"/>.
+        /// Ensures that a data object that is already present or that is deleted via <see cref="IDataAccessObject{DO, ID}.Delete(IEnumerable{DO})"/>
+        /// from the storage cannot be obtained using <see cref="IDataAccessObject{DO, ID}.Get()"/>.
+        /// ensures that <see cref="IDataAccessObject{DO, ID}.BeforeSaveDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterSaveDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.BeforeGetDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterGetDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.BeforeDeleteDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterDeleteDataObjects"/>
+        /// are called properly.
+        /// </summary>
+        [TestMethod]
+        public void TestSaveAndGetAndDeleteMultiple()
+        {
+            var dataObject_1 = TestDAO.Create(1);
+            var dataObject_2 = TestDAO.Create(2);
+            var dataObject_3 = TestDAO.Create(3);
+            var dataObjects = new List<TestDO>([dataObject_1, dataObject_2, dataObject_3]);
+
+            DOsExpectedToBeSaved.Add(dataObject_1);
+            DOsExpectedToBeSaved.Add(dataObject_2);
+            DOsExpectedToBeSaved.Add(dataObject_3);
+
+            TestDAO.BeforeSaveDataObjects += onBeforeSaveDataObjects;
+            TestDAO.AfterSaveDataObjects += onAfterSaveDataObjects;
+            TestDAO.Save(dataObjects);
+
+            var expectedIds = new List<long>([1, 2, 3]);
+            var gotDataObjects = TestDAO.GetAsync(expectedIds).Result;
+            var actualIds = gotDataObjects.Select(dataObj => dataObj.Id).ToList();
+
             Assert.IsNotNull(gotDataObjects);
-            Assert.AreEqual(0, gotDataObjects.Count());
+            Assert.AreEqual(dataObjects.Count, gotDataObjects.Count());
+
+            foreach (var actualId in actualIds) Assert.IsTrue(expectedIds.Contains(actualId));
+
+            DOsExpectedToBeDeleted.Add(dataObject_1);
+            DOsExpectedToBeDeleted.Add(dataObject_2);
+            DOsExpectedToBeDeleted.Add(dataObject_3);
+
+            TestDAO.BeforeDeleteDataObjects += onBeforeDeleteDataObjects;
+            TestDAO.AfterDeleteDataObjects += onAfterDeleteDataObjects;
+            TestDAO.Delete(gotDataObjects);
+
+            var gotAfterDeleteDataObject = TestDAO.Get();
+
+            Assert.IsNotNull(gotAfterDeleteDataObject);
+            Assert.AreEqual(0, gotAfterDeleteDataObject.Count());
+        }
+
+        /// <summary>
+        /// Tests the correct implementation of <see cref="IDataAccessObject{DO, ID}.SaveAsync(IEnumerable{DO})"/>,
+        /// and the correct implementation of <see cref="IDataAccessObject{DO, ID}.GetAsync()"/>,
+        /// and the correct implementation of <see cref="IDataAccessObject{DO, ID}.DeleteAsync(IEnumerable{DO})"/>.
+        /// Ensures that a data object that is already present or that is deleted via <see cref="IDataAccessObject{DO, ID}.DeleteAsync(IEnumerable{DO})"/>
+        /// from the storage cannot be obtained using <see cref="IDataAccessObject{DO, ID}.GetAsync()"/>.
+        /// ensures that <see cref="IDataAccessObject{DO, ID}.BeforeSaveDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterSaveDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.BeforeGetDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterGetDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.BeforeDeleteDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterDeleteDataObjects"/>
+        /// are called properly.
+        /// </summary>
+        [TestMethod]
+        public void TestSaveAndGetAndDeleteAsyncMultiple()
+        {
+            var dataObject_1 = TestDAO.Create(1);
+            var dataObject_2 = TestDAO.Create(2);
+            var dataObject_3 = TestDAO.Create(3);
+            var dataObjects = new List<TestDO>([dataObject_1, dataObject_2, dataObject_3]);
+
+            DOsExpectedToBeSaved.Add(dataObject_1);
+            DOsExpectedToBeSaved.Add(dataObject_2);
+            DOsExpectedToBeSaved.Add(dataObject_3);
+
+            TestDAO.BeforeSaveDataObjects += onBeforeSaveDataObjects;
+            TestDAO.AfterSaveDataObjects += onAfterSaveDataObjects;
+            TestDAO.SaveAsync(dataObjects).Wait();
+
+            var expectedIds = new List<long>([1, 2, 3]);
+            var gotDataObjects = TestDAO.GetAsync(expectedIds).Result;
+            var actualIds = gotDataObjects.Select(dataObj => dataObj.Id).ToList();
+
+            Assert.IsNotNull(gotDataObjects);
+            Assert.AreEqual(dataObjects.Count, gotDataObjects.Count());
+
+            foreach (var actualId in actualIds) Assert.IsTrue(expectedIds.Contains(actualId));
+
+            DOsExpectedToBeDeleted.Add(dataObject_1);
+            DOsExpectedToBeDeleted.Add(dataObject_2);
+            DOsExpectedToBeDeleted.Add(dataObject_3);
+
+            TestDAO.BeforeDeleteDataObjects += onBeforeDeleteDataObjects;
+            TestDAO.AfterDeleteDataObjects += onAfterDeleteDataObjects;
+            TestDAO.DeleteAsync(gotDataObjects).Wait();
+
+            var gotAfterDeleteDataObject = TestDAO.Get();
+
+            Assert.IsNotNull(gotAfterDeleteDataObject);
+            Assert.AreEqual(0, gotAfterDeleteDataObject.Count());
+        }
+
+        /// <summary>
+        /// Tests the correct implementation of <see cref="IDataAccessObject.Save(IEnumerable{DataObject})"/>,
+        /// and the correct implementation of <see cref="IDataAccessObject.Delete(IEnumerable{DataObject})"/>.
+        /// and its correct cooperation with <see cref="IDataAccessObject{DO, ID}.GetAsync()"/>,
+        /// Ensures that a data object that is already present or that is deleted via <see cref="IDataAccessObject{DO, ID}.DeleteAsync(IEnumerable{DO})"/>
+        /// from the storage cannot be obtained using <see cref="IDataAccessObject{DO, ID}.GetAsync()"/>.
+        /// ensures that <see cref="IDataAccessObject{DO, ID}.BeforeSaveDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterSaveDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.BeforeGetDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterGetDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.BeforeDeleteDataObjects"/>
+        /// and <see cref="IDataAccessObject{DO, ID}.AfterDeleteDataObjects"/>
+        /// are called properly.
+        /// </summary>
+        [TestMethod]
+        public void TestGeneralSaveAndDelete()
+        {
+            var generalInterface = TestDAO.GeneralInterface;
+            var dataObject_1 = TestDAO.Create(1);
+            var dataObject_2 = TestDAO.Create(2);
+            var dataObject_3 = TestDAO.Create(3);
+            var dataObjects = new List<TestDO>([dataObject_1, dataObject_2, dataObject_3]);
+
+            DOsExpectedToBeSaved.Add(dataObject_1);
+            DOsExpectedToBeSaved.Add(dataObject_2);
+            DOsExpectedToBeSaved.Add(dataObject_3);
+
+            TestDAO.BeforeSaveDataObjects += onBeforeSaveDataObjects;
+            TestDAO.AfterSaveDataObjects += onAfterSaveDataObjects;
+
+            generalInterface.Save(dataObjects);
+
+            var expectedIds = new List<long>([1, 2, 3]);
+            var gotDataObjects = TestDAO.GetAsync(expectedIds).Result;
+            var actualIds = gotDataObjects.Select(dataObj => dataObj.Id).ToList();
+
+            Assert.IsNotNull(gotDataObjects);
+            Assert.AreEqual(dataObjects.Count, gotDataObjects.Count());
+
+            foreach (var actualId in actualIds) Assert.IsTrue(expectedIds.Contains(actualId));
+
+            DOsExpectedToBeDeleted.Add(dataObject_1);
+            DOsExpectedToBeDeleted.Add(dataObject_2);
+            DOsExpectedToBeDeleted.Add(dataObject_3);
+
+            TestDAO.BeforeDeleteDataObjects += onBeforeDeleteDataObjects;
+            TestDAO.AfterDeleteDataObjects += onAfterDeleteDataObjects;
+            generalInterface.Delete(gotDataObjects);
+
+            var gotAfterDeleteDataObject = TestDAO.Get();
+
+            Assert.IsNotNull(gotAfterDeleteDataObject);
+            Assert.AreEqual(0, gotAfterDeleteDataObject.Count());
+
         }
     }
 }

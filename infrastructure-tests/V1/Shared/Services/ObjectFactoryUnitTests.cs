@@ -107,5 +107,24 @@
 
             Assert.IsNotNull(testDAO1);
         }
+
+        /// <summary>
+        /// Asserts that given an implementing class has been registered for an interface using the <see cref="ObjectFactory.Register(System.Type, System.Type)"/> method,
+        /// then the <see cref="ObjectFactory.IsRegistered(System.Type)"/> method returns true, and
+        /// the <see cref="ObjectFactory.CreateInstance{T}(object[])"/> method returns an instance of the implementing class.
+        /// </summary>
+        [TestMethod]
+        public void TestRegisterIsRegisteredAndCreateInstance()
+        {
+            ObjectFactory.Register(typeof(System.Collections.Generic.IList<int>), typeof(System.Collections.Generic.List<int>));
+
+            var isRegistered = ObjectFactory.IsRegistered(typeof(System.Collections.Generic.IList<int>));
+
+            Assert.IsTrue(isRegistered);
+
+            var instance = ObjectFactory.CreateInstance<System.Collections.Generic.IList<int>>();
+
+            Assert.IsNotNull(instance);
+        }
     }
 }

@@ -24,7 +24,7 @@ Interfaces and classes for managing data access operations are located in the na
 The actual implementation of data access logic (e.g., database interactions) must be provided in derived classes.
 
 ### Aspect Oriented Programming (AOP)
-Interfaces and classes for managing data access operations are located in the namespace `com.schoste.ddd.Infrastructure.V1.Aspects`. The APO feature is enabled by creating objects via the `com.schoste.ddd.Infrastructure.V1.Shared.Services.ObjectFactory` class and attributes which implement the `com.schoste.ddd.Infrastructure.V1.Aspects.IMethodAspect` interface.
+Interfaces and classes for managing data access operations are located in the namespace `com.schoste.ddd.Infrastructure.V1.Aspects`. The AOP feature is enabled by creating objects via the `com.schoste.ddd.Infrastructure.V1.Shared.Services.ObjectFactory` class and attributes which implement the `com.schoste.ddd.Infrastructure.V1.Aspects.IMethodAspect` interface.
 * `IMethodAspect`: An interface defining methods for pre- and post-execution logic around method calls.
 * `LoggedAspect`: An implementation for the `IMethodAspect` interface to provide logging functionality. The logging information are written to any implementation of the `com.schoste.ddd.Infrastructure.V1.Logging.ILogger` interface which is referenced by `com.schoste.ddd.Infrastructure.V1.Logging.Log.Instance`.
 * `RemotedAspect`: An implementation for the `IMethodAspect` interface to enable remote method calls in a way, that makes the implementation seemingly similar to local method calls.
